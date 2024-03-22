@@ -33,7 +33,7 @@ jobs:
       - name: Install Firebase CLI 
         run: npm install -g firebase-tools
       - name: Authenticate with Firebase 
-        run: sudo firebase login --interactive
+        run: sudo firebase login --interactive -y
 
       - name: Upload Artifact to Firebase App Distribution
         uses: wzieba/Firebase-Distribution-Github-Action@v1
