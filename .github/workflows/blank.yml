@@ -1,45 +1,24 @@
-name: Deploy to Firebase
+name: Build & upload to Firebase App Distribution 
 
-on:
-  workflow_dispatch:
-    inputs:
-      release_notes:
-        type: string
-        required: true
-        default: 'Manual Debug Build'
-        description: 'Release Notes'
+on: [push]
 
 jobs:
   build:
-    name: Building and distributing app
+
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
-
-      - uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
-
-      - name: Make gradlew executable
-        run: chmod +x ./gradlew
-
-      - name: Execute Gradle command - assembleDebug
-        run: ./gradlew assembleDebug
-
-      - name: Install Firebase CLI 
-        run: npm install -g firebase-tools
-      - name: Authenticate with Firebase 
-        run: sudo firebase login --interactive -y
-
-      - name: Upload Artifact to Firebase App Distribution
-        uses: wzieba/Firebase-Distribution-Github-Action@v1
-        with:
-          appId: ${{ secrets.FIREBASE_APP_ID }}
-          serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
-          groups: testers
-          file: app/build/outputs/apk/debug/app-debug.apk
-          releaseNotes: ${{ inputs.release_notes }}
+    - uses: actions/checkout@v1
+    - name: set up JDK 1.8
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.8
+    - name: build release 
+      run: ./gradlew assembleRelease
+    - name: upload artifact to Firebase App Distribution
+      uses: wzieba/Firebase-Distribution-Github-Action@v1
+      with:
+        appId: ${{secrets.FIREBASE_APP_ID}}
+        serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
+        groups: testers
+        file: app/build/outputs/apk/release/app-release-unsigned.apk
